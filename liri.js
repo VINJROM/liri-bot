@@ -53,7 +53,6 @@ var getMovie = function(movieName) {
         .catch(function(error) {
             if (error.response) {
                 console.log(error);
-
             }
         });
 }
@@ -62,14 +61,15 @@ var getMovie = function(movieName) {
 var getConcert = function(artistName) {
 
     axios.get("https://rest.bandsintown.com/artists/" + artistName + "/events?app_id=codingbootcamp").then(function(response) {
+        console.log(response.data);
         var events = response.data
         for (var i = 0; i < events.length; i++) {
-            console.log(events[i].venue.name);
-            console.log(events[i].venue.city);
+            // console.log("Artist: " + events[i].venue.lineup(0));
+            console.log("Venue: " + events[i].venue.name);
+            console.log("City: " + events[i].venue.city);
             var date = moment(events[i].datetime);
-            console.log(date.format('L'));
-            console.log('----------------------------------------');
-
+            console.log("Date: " + date.format('L'));
+            console.log('\n----------------------------------------\n');
         }
     }).catch(function(error) {
         // handle error
