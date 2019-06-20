@@ -4,14 +4,10 @@ var spotify = require('node-spotify-api');
 var axios = require('axios');
 var moment = require('moment');
 var spotify = new spotify(keys.spotify);
-
-// used to retrieve artist names in our Spotify call
-var getArtistNames = function(artist) {
-    return artist.name;
-}
+var omdb = require('omdb');
 
 // Spotify data retrieval
-var getMeSpotify = function(songName) {
+var getSpotify = function(songName) {
 
     spotify.search({ type: 'track', query: songName, limit: 5 }, function(err, data) {
         if (err) {
@@ -21,7 +17,7 @@ var getMeSpotify = function(songName) {
         var songs = data.tracks.items;
         for (var i = 0; i < songs.length; i++) {
             console.log(i + 1);
-            console.log('artist(s): ' + songs[i].artists.map(getArtistNames));
+            console.log('artist(s): ' + songs[i].artists[0].name);
             console.log('song name: ' + songs[i].name);
             console.log('preview song: ' + songs[i].preview_url);
             console.log('album: ' + songs[i].album.name);
@@ -30,25 +26,43 @@ var getMeSpotify = function(songName) {
     });
 }
 
-// getMeSpotify();
 
-// // OMDB retrieval
-// var getMovie = function(movieName) {
-//     // OMDB request
-//     request('http://www.omdbapi.com/?t=' + movieName + '&y=&plot=short&r=json', function(error, response, body) {
-//         console.log('error:', error);
-//         console.log('statusCode:', response && response.statusCode);
-//         console.log('body:', body);
-//     });
-// }
+// // OMDB data retrieval
+var getMovie = function(movieName) {
+    console.log('movieName', movieName)
 
+    axios.get('http://www.omdbapi.com/?t=' + movieName + '&y=&plot=short&apikey=trilogy').then(function(response) {
+            var movieData = response.data;
+            console.log('Title: ' + movieData.Title);
+            console.log('Year: ' + movieData.Year);
+            console.log('Rated: ' + movieData.Rated);
+            console.log('Language: ' + movieData.Language);
+            console.log('Plot: ' + movieData.Plot);
+            console.log('Actors: ' + movieData.Actors);
+            console.log('IMDB Rating: ' + movieData.imdbRating);
+            console.log('Rotten Tomatoes Rating: ' + movieData.tomatoRating);
+            console.log('Rotten tomatoes URL: ' + movieData.tomatoURL);
+        })
+        .catch(function(error) {
+            if (error.response) {
+                console.log(error);
+
+            }
+        });
+}
+
+
+
+// captures function input
 var pick = function(caseData, functionData) {
     switch (caseData) {
         case 'spotify-this-song':
-            getMeSpotify(functionData);
+            getSpotify(functionData);
             break;
+        case 'movie-this':
+            getMovie(functionData);
         default:
-            console.log("liri doesn't know that");
+            console.log("Not sure what you mean by that");
     }
 };
 
@@ -57,20 +71,3 @@ var runThis = function(argOne, argTwo) {
 };
 
 runThis(process.argv[2], process.argv[3]);
-
-// // takes in all of the command line arguments
-// var inputString = process.argv;
-// // captures the operator and gives command
-// var command = inputString[2];
-// // input being used for data-retrieval
-// var userInput = inputString[3];
-
-// if (command === "concert-this") {
-//     console.log();
-// } else if (command === "spotify-this-song") {
-//     console.log();
-// } else if (command === "movie-this") {
-//     console.log();
-// } else if (command === "do-what-it-says") {
-//     console.log();
-// }
