@@ -5,10 +5,14 @@ var axios = require('axios');
 var moment = require('moment');
 var spotify = new spotify(keys.spotify);
 var omdb = require('omdb');
+var bandsintown = require('bandsintown');
 
 // Spotify data retrieval
 var getSpotify = function(songName) {
 
+    if (!songName) {
+        songName = "The Sign";
+    }
     spotify.search({ type: 'track', query: songName, limit: 5 }, function(err, data) {
         if (err) {
             console.log('Error occurred: ' + err);
@@ -29,8 +33,10 @@ var getSpotify = function(songName) {
 
 // // OMDB data retrieval
 var getMovie = function(movieName) {
-    console.log('movieName', movieName)
-
+    // console.log('movieName', movieName)
+    if (!movieName) {
+        movieName = "Mr.Nobody";
+    }
     axios.get('http://www.omdbapi.com/?t=' + movieName + '&y=&plot=short&apikey=trilogy').then(function(response) {
             var movieData = response.data;
             console.log('Title: ' + movieData.Title);
@@ -42,6 +48,7 @@ var getMovie = function(movieName) {
             console.log('IMDB Rating: ' + movieData.imdbRating);
             console.log('Rotten Tomatoes Rating: ' + movieData.tomatoRating);
             console.log('Rotten tomatoes URL: ' + movieData.tomatoURL);
+            console.log('----------------------------------------');
         })
         .catch(function(error) {
             if (error.response) {
@@ -51,7 +58,26 @@ var getMovie = function(movieName) {
         });
 }
 
+// BandsInTown data retrieval
+var getConcert = function(artistName) {
 
+    axios.get("https://rest.bandsintown.com/artists/" + artistName + "/events?app_id=codingbootcamp").then(function(response) {
+        var events = response.data
+        for (var i = 0; i < events.length; i++) {
+            console.log(events[i].venue.name);
+            console.log(events[i].venue.city);
+            var date = moment(events[i].datetime);
+            console.log(date.format('L'));
+            console.log('----------------------------------------');
+
+        }
+    }).catch(function(error) {
+        // handle error
+        console.log(error);
+    })
+
+
+};
 
 // captures function input
 var pick = function(caseData, functionData) {
@@ -61,6 +87,10 @@ var pick = function(caseData, functionData) {
             break;
         case 'movie-this':
             getMovie(functionData);
+            break;
+        case 'concert-this':
+            getConcert(functionData);
+            break;
         default:
             console.log("Not sure what you mean by that");
     }
